@@ -39,15 +39,24 @@ class SLPP(object):
         self.alnum = re.compile('\w', re.M)
         self.newline = '\n'
         self.tab = '\t'
+        self.initial_object_idx = 0
 
-    def decode(self, text):
+    def decode(self, text, object_indices_start_at_zero=True):
         if not text or not isinstance(text, six.string_types):
             return
+
+        if not object_indices_start_at_zero:
+            self.initial_object_idx = 1
+        else:
+            self.initial_object_idx = 0
+
         self.text = text
         self.at, self.ch, self.depth = 0, '', 0
         self.len = len(text)
         self.next_chr()
         result = self.value()
+
+        self.initial_object_idx = 0
         return result
 
     def encode(self, obj):
@@ -173,7 +182,7 @@ class SLPP(object):
     def object(self):
         o = {}
         k = None
-        idx = 0
+        idx = self.initial_object_idx
         numeric_keys = False
         self.depth += 1
         self.next_chr()
